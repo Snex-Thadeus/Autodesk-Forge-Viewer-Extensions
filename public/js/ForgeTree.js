@@ -30,7 +30,7 @@ $(document).ready(function () {
     $("#newBucketKey").focus();
   })
 
-  $('#hiddenUploadField').change(function () {
+  /*$('#hiddenUploadField').change(function () {
     var node = $('#appBuckets').jstree(true).get_selected(true)[0];
     var _this = this;
     if (_this.files.length == 0) return;
@@ -54,6 +54,55 @@ $(document).ready(function () {
         });
         break;
     }
+  });*/
+  $('#btn_upload').click(function () {
+    node = $('#appBuckets').jstree(true).get_selected(true)[0];
+    if($('#hiddenUploadField').val().length > 0 && node) {
+      switch(node.type) {
+      	case 'bucket':
+      		$('#uploadFile').attr('action','/api/forge/oss/objects');
+      		var formData = new FormData($('#uploadFile')[0]);
+        	formData.append('bucketKey', node.id);
+      		//formData.submit();
+      $.ajax({
+        url: '/api/forge/oss/objects',
+        data: formData,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (data) {$('#refreshBuckets').click();
+          $('#forgeUrn').html(data);
+          _this.value = '';
+        },
+        failure: function(err) {
+          alert(err);
+        }
+      });
+    		break;
+    	default:
+    		uploadFile();
+    		return false;
+      }
+      //ajax call
+      /*$.ajax({
+        url: '/api/forge/oss/objects',
+        data: formData,
+        processData: false,
+        contentType: false,
+        type: 'POST',
+        success: function (data) {
+          $('#forgeUrn').html(data);
+          _this.value = '';
+        },
+        failure: function(err) {
+          alert(err);
+        }
+      });*/
+    }
+    else {
+      uploadFile();
+    }
+    return false;
   });
 });
 
@@ -111,6 +160,8 @@ function prepareAppBucketTree() {
     if (data != null && data.node != null && data.node.type == 'object') {
       $("#forgeViewer").empty();
       var urn = data.node.id;
+      urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bnRiYXA2eWViZ3F1ZmhuamdqNW5idXN4ZHhub204OHEtY29tcGFueV9wYWNlL1RyYWluJTIwc3RhdGlvbi5ud2M=';
+      $('#forgeUrn').html("URN: "+urn);
       getForgeToken(function (access_token) {
         jQuery.ajax({
           url: 'https://developer.api.autodesk.com/modelderivative/v2/designdata/' + urn + '/manifest',
@@ -134,6 +185,7 @@ function prepareAppBucketTree() {
 function autodeskCustomMenu(autodeskNode) {
   var items;
 
+  $('#forgeUrn').html('');
   switch (autodeskNode.type) {
     case "bucket":
       items = {
@@ -143,6 +195,29 @@ function autodeskCustomMenu(autodeskNode) {
             uploadFile();
           },
           icon: 'glyphicon glyphicon-cloud-upload'
+        },
+        // TODO: Not functioning
+        // deleteBucket: {
+        //   label: "Delete bucket",
+        //   action: function () {
+        //     const node = $('#appBuckets').jstree(true).get_selected(true)[0];
+        //     console.log(node.id);
+        //     fetch('/api/forge/oss/buckets/' + node.id, {
+        //         method: 'DELETE'
+        //     }).finally(() => {
+        //         $('#appBuckets').jstree(true).refresh();
+        //     });
+        //   },
+        // icon: 'glyphicon glyphicon-bin'
+        // }
+        deleteBucket: {
+          label: "Delete bucket",
+          action: function() {
+                  var treeNode = $('#appBuckets').jstree(true).get_selected(true)[0];
+                  console.log(treeNode)
+            deleteBucket(treeNode);
+          },
+         icon: 'glyphicon glyphicon-bin'
         }
       };
       break;
@@ -155,7 +230,25 @@ function autodeskCustomMenu(autodeskNode) {
             translateObject(treeNode);
           },
           icon: 'glyphicon glyphicon-eye-open'
-        }
+        },
+	viewUrn: {
+	  label: "View URN",
+	  action: function() {
+	    var urn = $('#appBuckets').jstree(true).get_selected(true)[0].id;
+      urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bnRiYXA2eWViZ3F1ZmhuamdqNW5idXN4ZHhub204OHEtY29tcGFueV9wYWNlL1RyYWluJTIwc3RhdGlvbi5ud2M=';
+	    $('#forgeUrn').html("URN: "+urn);
+	  },
+	 icon: 'glyphicon glyphicon-flag'
+	},
+  // TODO: Not functioning
+	// deleteFile: {
+	//   label: "Delete",
+	//   action: function() {
+  //           var treeNode = $('#appBuckets').jstree(true).get_selected(true)[0];
+	//     deleteFile(treeNode);
+	//   },
+	//  icon: 'glyphicon glyphicon-bin'
+	// }
       };
       break;
   }
@@ -180,4 +273,53 @@ function translateObject(node) {
       $("#forgeViewer").html('Translation started! Please try again in a moment.');
     },
   });
+}
+function deleteFile(node) {
+  var fileName = node.text;
+  $('#deleteFile').attr('action', '/api/forge/oss/delete');
+  $('#deleteFile > input[name="fileName"]').val(fileName);
+  $('#deleteFile > input[name="bucketKey"]').val(node.parents[0]);
+  //alert($('#deleteFile > input[name="fileName"]').val());
+  //var formData = new FormData($('#deleteFile')[0]);
+  /*$.ajax({
+    url: '/api/forge/oss/delete',
+    data: formData,
+    processData: false,
+    contentType: false,
+    type: 'POST',
+    success: function (data) {
+      $('#forgeUrn').html('');
+      prepareAppBucketTree();
+    },
+    failure: function(err) {
+      alert(err);
+    }
+  });*/
+  $('#deleteFile').submit();
+}
+
+
+
+function deleteBucket(node) {
+	var bucketName = node.id;
+	$('#deleteBucket').attr('action', '/api/forge/oss/delete');
+	$('#deleteBucket > input[name="bucketKey"]').val(bucketName);
+	var formData = new FormData($('#deleteBucket')[0]);
+	$.ajax({
+		url: '/api/forge/oss/delete',
+		data: formData,
+		processData: false,
+		contentType: false,
+		type: 'POST',
+		success: function (data) {
+			$('#forgeUrn').html('');
+			//prepareAppBucketTree();
+			window.location.refresh();
+		},
+		failure: function(err) {
+			alert(err);
+		}
+	});
+	$('#deleteBucket > input[name="bucketKey"]').val('');
+	// $('#deleteBucket').submit();
 }

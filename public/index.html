@@ -18,10 +18,6 @@
   <link href="css/main.css" rel="stylesheet" />
   <script src="js/ForgeTree.js"></script>
   <script src="js/ForgeViewer.js"></script>
-  <script src="js/awesomeextension.js"></script>
-  <!-- <script src="js/myMapboxForgeTest.js"></script> -->
-  <script src="js/handleselectionextension.js"></script>
-  <script src="js/modelsummaryextension.js"></script>
 </head>
 
 <body>
@@ -31,7 +27,10 @@
       <ul class="nav navbar-nav left">
         <li>
            <!-- <a href="http://forge.autodesk.com" target="_blank"> -->
-            <h3><b>Snex-Tech Forge</b></h3>
+            <li>
+              <h3><b>Snex-Tech Forge</b></h3>
+            </li>
+            
             <!-- <img alt="Autodesk Forge" src="//developer.static.autodesk.com/images/logo_forge-2-line.png" height="20"> -->
         </li>
       </ul>
@@ -55,13 +54,34 @@
         </div>
       </div>
       <div class="col-sm-8 fill">
+        <div class="row fill" style="height: 50px;">
+          <div id="forgeUrn" class="col-sm-12"> </div>
+        </div><br>
         <div id="forgeViewer"></div>
       </div>
     </div>
   </div>
-  <form id="uploadFile" method='post' enctype="multipart/form-data">
-    <input id="hiddenUploadField" type="file" name="theFile" style="visibility:hidden" />
-  </form>
+  <div class="container-fluid fill">
+    <form id="uploadFile" name="uploadFile" method='post' action="" enctype="multipart/form-data">
+      <div class="row fill">
+        <div class="col-sm-2 fill">
+      <input id="hiddenUploadField" type="file" name="fileToUpload" sname="theFile" style="visibility:visible;" />
+        </div>
+        <div class="col-sm-2 fill">
+      <button id="btn_upload" type="submit" style="color:#FFFFFF;background-color:#0000FF;border:0px;">Upload a file</button>
+        </div>
+        <div class="col-sm-8 fill">
+        </div>
+      </div>
+    </form>
+    </div>
+    <form id="deleteFile" method="post" action="" style="visibility:visible;">
+      <input type="hidden" name="fileName" value="" />
+      <input type="hidden" name="bucketKey" value="" />
+    </form>
+    <form id="deleteBucket" method="post" action="" style="visibility:visible;">
+      <input type="hidden" name="bucketKey" value="" />
+    </form>
   <!-- Modal Create Bucket -->
   <div class="modal fade" id="createBucketModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
@@ -73,6 +93,7 @@
           <h4 class="modal-title" id="myModalLabel">Create new bucket</h4>
         </div>
         <div class="modal-body">
+          
           <input type="text" id="newBucketKey" class="form-control"> For demonstration purposes, objects (files)
           are NOT automatically translated. After you upload, right click on
           the object and select "Translate". Note: Technically your bucket name is required to be globally unique across

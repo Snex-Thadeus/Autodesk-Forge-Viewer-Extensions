@@ -107,4 +107,18 @@ router.post('/objects', multer({ dest: 'uploads/' }).single('fileToUpload'), asy
     });
 });
 
+
+// DELETE /api/forge/oss/buckets/:bucket_name - deletes a bucket
+router.delete('/delete', async (req, res, next) => {
+    try {
+        const api = new BucketsApi();
+        await api.deleteBucket(req.params.bucket_name, req.oauth_client, req.oauth_token);
+        res.status(200).end();
+    } catch (err) {
+        next(err);
+    }
+});
+
+
+
 module.exports = router;

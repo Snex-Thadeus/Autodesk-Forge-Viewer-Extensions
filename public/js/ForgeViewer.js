@@ -19,18 +19,21 @@
 var viewer;
 
 function launchViewer(urn) {
+  urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bnRiYXA2eWViZ3F1ZmhuamdqNW5idXN4ZHhub204OHEtY29tcGFueV9wYWNlL1RyYWluJTIwc3RhdGlvbi5ud2M=';
   var options = {
     env: 'AutodeskProduction',
     getAccessToken: getForgeToken
   };
 
   Autodesk.Viewing.Initializer(options, () => {
-    const config = {
-      extensions: ['MyAwesomeExtension', 'Autodesk.VisualClusters', 'HandleSelectionExtension', 'ModelSummaryExtension'] //'MyMapboxForgeExtension'
-    };
-    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), config);
+    // const config = {
+    //   extensions: ['MyAwesomeExtension', 'Autodesk.VisualClusters', 'HandleSelectionExtension', 'ModelSummaryExtension'] //'MyMapboxForgeExtension'
+    // };
+    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer')); //, config
     viewer.start();
+    
     var documentId = 'urn:' + urn;
+    // console.log(urn);
     Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
   });
 }
@@ -47,7 +50,7 @@ function onDocumentLoadFailure(viewerErrorCode) {
 }
 
 function getForgeToken(callback) {
-  fetch('/api/forge/oauth/token').then(res => {
+  fetch('https://dev2.teknobuilt.com:8443/api/forge/oauth/token').then(res => {
     res.json().then(data => {
       callback(data.access_token, data.expires_in);
     });
