@@ -16,11 +16,32 @@
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
 
+// $(window).on('load', function(){
+//   var treeNode = $('#appBuckets').jstree(true).get_selected(true)[0];
+//   translateObject(treeNode)
+// });
+
+
 $(document).ready(function () {
   prepareAppBucketTree();
   $('#refreshBuckets').click(function () {
     $('#appBuckets').jstree(true).refresh();
+    
   });
+
+  // $('a').click(function(){
+  //   $('a.jstree-anchor').trigger('click');
+  // });
+
+   // alert($('a').attr('id'));
+
+    $('div.col-sm-4.fill').hide();
+
+  // $('#showFormCreateBucket').trigger('click');
+
+  $('#hiddenUploadField').hide();
+  $('#btn_upload').hide();
+
 
   $('#createNewBucket').click(function () {
     createNewBucket();
@@ -158,9 +179,9 @@ function prepareAppBucketTree() {
     $('#appBuckets').jstree('open_all');
   }).bind("activate_node.jstree", function (evt, data) {
     if (data != null && data.node != null && data.node.type == 'object') {
-      $("#forgeViewer").empty();
+      $("#MyViewerDiv").empty();
       var urn = data.node.id;
-      urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bnRiYXA2eWViZ3F1ZmhuamdqNW5idXN4ZHhub204OHEtY29tcGFueV9wYWNlL1RyYWluJTIwc3RhdGlvbi5ud2M=';
+      urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bnRiYXA2eWViZ3F1ZmhuamdqNW5idXN4ZHhub204OHEtY29tcGFueV9wYWNlL1BsYW50JTIwU2NhZmZvbGRpbmcubndk';
       $('#forgeUrn').html("URN: "+urn);
       getForgeToken(function (access_token) {
         jQuery.ajax({
@@ -168,13 +189,13 @@ function prepareAppBucketTree() {
           headers: { 'Authorization': 'Bearer ' + access_token },
           success: function (res) {
             if (res.progress === 'success' || res.progress === 'complete') launchViewer(urn);
-            else $("#forgeViewer").html('The translation job still running: ' + res.progress + '. Please try again in a moment.');
+            else $("#MyViewerDiv").html('The translation job still running: ' + res.progress + '. Please try again in a moment.');
           },
           error: function (err) {
             var msgButton = 'This file is not translated yet! ' +
               '<button class="btn btn-xs btn-info" onclick="translateObject()"><span class="glyphicon glyphicon-eye-open"></span> ' +
               'Start translation</button>'
-            $("#forgeViewer").html(msgButton);
+            $("#MyViewerDiv").html(msgButton);
           }
         });
       })
@@ -235,7 +256,7 @@ function autodeskCustomMenu(autodeskNode) {
 	  label: "View URN",
 	  action: function() {
 	    var urn = $('#appBuckets').jstree(true).get_selected(true)[0].id;
-      urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bnRiYXA2eWViZ3F1ZmhuamdqNW5idXN4ZHhub204OHEtY29tcGFueV9wYWNlL1RyYWluJTIwc3RhdGlvbi5ud2M=';
+      urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bnRiYXA2eWViZ3F1ZmhuamdqNW5idXN4ZHhub204OHEtY29tcGFueV9wYWNlL1BsYW50JTIwU2NhZmZvbGRpbmcubndk';
 	    $('#forgeUrn').html("URN: "+urn);
 	  },
 	 icon: 'glyphicon glyphicon-flag'
@@ -261,7 +282,7 @@ function uploadFile() {
 }
 
 function translateObject(node) {
-  $("#forgeViewer").empty();
+  $("#MyViewerDiv").empty();
   if (node == null) node = $('#appBuckets').jstree(true).get_selected(true)[0];
   var bucketKey = node.parents[0];
   var objectKey = node.id;
@@ -270,10 +291,11 @@ function translateObject(node) {
     contentType: 'application/json',
     data: JSON.stringify({ 'bucketKey': bucketKey, 'objectName': objectKey }),
     success: function (res) {
-      $("#forgeViewer").html('Translation started! Please try again in a moment.');
+      $("#MyViewerDiv").html('Translation started! Please try again in a moment.');
     },
   });
 }
+
 function deleteFile(node) {
   var fileName = node.text;
   $('#deleteFile').attr('action', '/api/forge/oss/delete');
